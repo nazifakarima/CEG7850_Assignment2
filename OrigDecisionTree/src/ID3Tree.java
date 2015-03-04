@@ -8,12 +8,12 @@ import java.util.Scanner;
 
 public class ID3Tree {
 	public static ArrayList<Boolean[]> testData = new ArrayList<Boolean[]>();
+	public static int[] percentage = { 10, 25, 50, 75, 100 };
 
 	public static ArrayList<Boolean[]> readFile(String filename)
 			throws Exception {
 
 		ArrayList<Boolean[]> data = new ArrayList<>();
-
 		Scanner input = new Scanner(new File(filename));
 
 		while (input.hasNext()) {
@@ -32,6 +32,7 @@ public class ID3Tree {
 		}
 
 		input.close();
+
 		return data;
 	}
 
@@ -207,43 +208,70 @@ public class ID3Tree {
 	public static void main(String[] args) throws Exception {
 
 		testData = readFile("./test.txt");
-		//System.out.println("for 100% test data" + testData.size());
-		ArrayList<Node> trees = new ArrayList<Node>();
-		HashSet<Integer> attributes = new HashSet<>();
-		for (int i = 0; i < testData.get(0).length - 1; i++) {
-			attributes.add(i);
+		ArrayList<Boolean[]> trainingData = readFile("./training.txt");
+		ArrayList<Boolean> actualClassValue = new ArrayList<Boolean>();
+		// System.out.println("for 100% test data" + testData.size());
+		for (int i = 0; i < trainingData.size(); i++) {
+			Boolean[] record = trainingData.get(i);
+			actualClassValue.add(record[record.length - 1]);
 		}
-		Node root = buildTree(testData, attributes);
-		traverseTree(root, 0, "");
-		trees.add(root);
-//		Boolean yes = true;
-//		System.out.println("Enter the percentage of test file to use for building decision tree:");
-//		do{
-//			System.out.println("Enter");
-//		}while(yes);
-		ArrayList<Boolean[]> modifiedTestData = generateTestDataLists(10);// 20,50,80
-		System.out.println("for 50% test data" + modifiedTestData.size());
+
+		// ArrayList<Node> trees = new ArrayList<Node>();
+		// HashSet<Integer> attributes = getAttributeList(testData);
+		// Node root = buildTree(testData, attributes);
+		// traverseTree(root, 0, "");
+		// trees.add(root);
+
+		for (int i = 0; i < percentage.length; i++) {
+			ArrayList<Boolean[]> modifiedTestData = generateTestDataLists(percentage[i]);// 20,50,80
+			System.out.println("Unmodified dataset size: " + modifiedTestData.size());
+			HashSet<Integer> attributes = getAttributeList(modifiedTestData);
+			Node root = buildTree(modifiedTestData, attributes);
+			traverseTree(root, 0, "");
+			// trees.add(root);
+			ArrayList<Boolean> derivedClassValue = new ArrayList<Boolean>();
+			for (int j = 0; j < trainingData.size(); j++) {
+				Boolean[] record = trainingData.get(j);
+				// actualClassValue.add(record[record.length - 1]);
+				///System.out.println(Arrays.toString(record));
+				// System.out.println("With complete data");
+				derivedClassValue.add(classify(root, record));
+				///System.out.println(classify(root, record));
+
+				// System.out.println("With half data");
+				// System.out.println(classify(trees.get(1), record));
+			}
+			Double meanSquareError = compareResults(actualClassValue, derivedClassValue);
+			System.out.println(meanSquareError);
+		}
+
+	}
+
+	private static Double compareResults(ArrayList<Boolean> actualClassValue,
+			ArrayList<Boolean> derivedClassValue) {
+		int countActualTrue = 0;
+		int countDerivedTrue = 0;
+		for (int i = 0; i < actualClassValue.size(); i++) {
+			if (actualClassValue.get(i)) {
+				countActualTrue++;
+			}
+			if (derivedClassValue.get(i)) {
+				countDerivedTrue++;
+			}
+		}
+		Double msq = (double) ((countActualTrue-countDerivedTrue) * (countActualTrue-countDerivedTrue));
+		return msq;
+
+	}
+
+	private static HashSet<Integer> getAttributeList(
+			ArrayList<Boolean[]> modifiedTestData) {
+		HashSet<Integer> attributes;
 		attributes = new HashSet<>();
 		for (int i = 0; i < modifiedTestData.get(0).length - 1; i++) {
 			attributes.add(i);
 		}
-		root = buildTree(modifiedTestData, attributes);
-		traverseTree(root, 0, "");
-		trees.add(root);
-		// Boolean[] record = {false, true, true};
-		// Boolean[] record = {true, false, false};
-		// Boolean[] record = {false, false, true};
-		// Boolean[] record = {true, true, false};
-		ArrayList<Boolean[]> trainingData = readFile("./training.txt");
-		for (int i = 0; i < trainingData.size(); i++) {
-			Boolean[] record = trainingData.get(i);
-			// System.out.println(Arrays.toString(record));
-			// System.out.println("With complete data");
-			// System.out.println(classify(trees.get(0), record));
-			System.out.println("With half data");
-			System.out.println(classify(trees.get(1), record));
-		}
-
+		return attributes;
 	}
 
 	private static ArrayList<Boolean[]> generateTestDataLists(int percentage) {
@@ -251,28 +279,16 @@ public class ID3Tree {
 		ArrayList<Boolean[]> data = new ArrayList<Boolean[]>();
 		int size = testData.size();
 		int newSize = (int) ((size * percentage) / 100);
-		System.out.println("for 50% test data full data" + testData.size() + newSize);
-		
+		// System.out.println("for 50% test data full data" + testData.size()+
+		// newSize);
+
 		for (int i = 0; i < newSize; i++) {
 			Boolean[] record = testData.get(i);
-			System.out.println("Building half tree" + Arrays.toString(record));
+			// System.out.println("Building half tree" +
+			// Arrays.toString(record));
 			data.add(record);
 		}
 		return data;
-	}
-
-	private static void createDecisionTree(ArrayList<Boolean[]> testData,
-			int percentage) {
-		StringBuilder toBeWritten = new StringBuilder();
-		int size = testData.size();
-		int newSize = (int) (size * (percentage / 100));
-		for (int j = 0; j < newSize; j++) {
-			Boolean[] record = testData.get(j);
-			toBeWritten.append(Arrays.toString(record));
-			toBeWritten.append(System.getProperty("line.separator"));
-			System.out.println(Arrays.toString(record));
-		}
-		writeToFile(toBeWritten, "training" + "_" + percentage);
 	}
 
 	private static void writeToFile(StringBuilder toBeWritten, String filename) {
