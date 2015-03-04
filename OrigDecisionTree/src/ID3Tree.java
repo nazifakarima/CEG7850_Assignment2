@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -210,21 +209,15 @@ public class ID3Tree {
 		testData = readFile("./test.txt");
 		ArrayList<Boolean[]> trainingData = readFile("./training.txt");
 		ArrayList<Boolean> actualClassValue = new ArrayList<Boolean>();
-		// System.out.println("for 100% test data" + testData.size());
 		for (int i = 0; i < trainingData.size(); i++) {
 			Boolean[] record = trainingData.get(i);
 			actualClassValue.add(record[record.length - 1]);
 		}
 
-		// ArrayList<Node> trees = new ArrayList<Node>();
-		// HashSet<Integer> attributes = getAttributeList(testData);
-		// Node root = buildTree(testData, attributes);
-		// traverseTree(root, 0, "");
-		// trees.add(root);
-
 		for (int i = 0; i < percentage.length; i++) {
 			ArrayList<Boolean[]> modifiedTestData = generateTestDataLists(percentage[i]);// 20,50,80
-			System.out.println("Unmodified dataset size: " + modifiedTestData.size());
+			System.out.println("Unmodified dataset size: "
+					+ modifiedTestData.size());
 			HashSet<Integer> attributes = getAttributeList(modifiedTestData);
 			Node root = buildTree(modifiedTestData, attributes);
 			traverseTree(root, 0, "");
@@ -233,22 +226,15 @@ public class ID3Tree {
 			StringBuilder toBeWritten = new StringBuilder();
 			for (int j = 0; j < trainingData.size(); j++) {
 				Boolean[] record = trainingData.get(j);
-				// actualClassValue.add(record[record.length - 1]);
-				///System.out.println(Arrays.toString(record));
-				// System.out.println("With complete data");
 				derivedClassValue.add(classify(root, record));
 				toBeWritten.append(derivedClassValue.get(j));
 				toBeWritten.append(System.getProperty("line.separator"));
-				
-				///System.out.println(classify(root, record));
-
-				// System.out.println("With half data");
-				// System.out.println(classify(trees.get(1), record));
 			}
-			//System.out.println("the stringbuilder" + toBeWritten);
-			String filename = "unmodified_data_output_" + percentage[i]+"_percent";
+			String filename = "unmodified_data_output_" + percentage[i]
+					+ "_percent";
 			writeToFile(toBeWritten, filename);
-			Double meanSquareError = compareResults(actualClassValue, derivedClassValue);
+			Double meanSquareError = compareResults(actualClassValue,
+					derivedClassValue);
 			System.out.println(meanSquareError);
 		}
 
@@ -266,7 +252,7 @@ public class ID3Tree {
 				countDerivedTrue++;
 			}
 		}
-		Double msq = (double) ((countActualTrue-countDerivedTrue) * (countActualTrue-countDerivedTrue));
+		Double msq = (double) ((countActualTrue - countDerivedTrue) * (countActualTrue - countDerivedTrue));
 		return msq;
 
 	}
@@ -308,9 +294,9 @@ public class ID3Tree {
 			fop = new FileOutputStream(filename, false);
 
 			// if file doesn't exists, then create it
-			 if (!file.exists()) {
-			file.createNewFile();
-			 }
+			if (!file.exists()) {
+				file.createNewFile();
+			}
 
 			// get the content in bytes
 			byte[] contentInBytes = toWriteInFile.getBytes();
