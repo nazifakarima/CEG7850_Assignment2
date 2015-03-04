@@ -230,17 +230,24 @@ public class ID3Tree {
 			traverseTree(root, 0, "");
 			// trees.add(root);
 			ArrayList<Boolean> derivedClassValue = new ArrayList<Boolean>();
+			StringBuilder toBeWritten = new StringBuilder();
 			for (int j = 0; j < trainingData.size(); j++) {
 				Boolean[] record = trainingData.get(j);
 				// actualClassValue.add(record[record.length - 1]);
 				///System.out.println(Arrays.toString(record));
 				// System.out.println("With complete data");
 				derivedClassValue.add(classify(root, record));
+				toBeWritten.append(derivedClassValue.get(j));
+				toBeWritten.append(System.getProperty("line.separator"));
+				
 				///System.out.println(classify(root, record));
 
 				// System.out.println("With half data");
 				// System.out.println(classify(trees.get(1), record));
 			}
+			//System.out.println("the stringbuilder" + toBeWritten);
+			String filename = "unmodified_data_output_" + percentage[i]+"_percent";
+			writeToFile(toBeWritten, filename);
 			Double meanSquareError = compareResults(actualClassValue, derivedClassValue);
 			System.out.println(meanSquareError);
 		}
@@ -298,12 +305,12 @@ public class ID3Tree {
 		try {
 
 			file = new File(filename);
-			fop = new FileOutputStream(file);
+			fop = new FileOutputStream(filename, false);
 
-			// if file doesnt exists, then create it
-			// if (!file.exists()) {
+			// if file doesn't exists, then create it
+			 if (!file.exists()) {
 			file.createNewFile();
-			// }
+			 }
 
 			// get the content in bytes
 			byte[] contentInBytes = toWriteInFile.getBytes();
