@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,32 +8,41 @@ import java.util.Scanner;
 
 public class ID3Tree {
 
-	public class UnmodifiedDataUnmodifiedTree {
-		public ArrayList<Boolean[]> testData = new ArrayList<Boolean[]>();
-		public int[] percentage = { 10, 25, 50, 75, 100 };
+	public static void main(String[] args) throws Exception {
+		ID3Tree id3Tree = new ID3Tree();
+		System.out.println("Showing results for unmodified data.");
+		ID3Tree.UnmodifiedTreeUnmodifiedData uTUD = id3Tree.new UnmodifiedTreeUnmodifiedData();
+		System.out.println("Showing results for randomized data.");
+		//ID3Tree.ModifiedTreeRandomizedData mTRD = id3Tree.new ModifiedTreeRandomizedData();
+	}
 
-		public UnmodifiedDataUnmodifiedTree() {
+	public class ModifiedTreeRandomizedData {
 
+		public ArrayList<Boolean[]> randomizedTrainingData = new ArrayList<Boolean[]>();
+		public int[] percentage = { 1, 2, 5, 10, 25, 50, 75, 100 };
+
+		public ModifiedTreeRandomizedData() {
 			try {
-				testData = readFile("./test.txt");
-				ArrayList<Boolean[]> trainingData = readFile("./training.txt");
+				randomizedTrainingData = readFileandRandomize("./training.txt");
+				ArrayList<Boolean[]> testData = readFileandRandomize("./test.txt");
 				ArrayList<Boolean> actualClassValue = new ArrayList<Boolean>();
-				for (int i = 0; i < trainingData.size(); i++) {
-					Boolean[] record = trainingData.get(i);
+				for (int i = 0; i < testData.size(); i++) {
+					Boolean[] record = testData.get(i);
 					actualClassValue.add(record[record.length - 1]);
 				}
 				for (int i = 0; i < percentage.length; i++) {
 					ArrayList<Boolean[]> modifiedTestData = generateTestDataLists(percentage[i]);// 20,50,80
-					System.out.println("Unmodified dataset size: "
-							+ modifiedTestData.size());
+					System.out
+							.println(percentage[i]
+									+ "% of training dataset used to build decision tree.");
 					HashSet<Integer> attributes = getAttributeList(modifiedTestData);
 					Node root = buildTree(modifiedTestData, attributes);
 					traverseTree(root, 0, "");
 					// trees.add(root);
 					ArrayList<Boolean> derivedClassValue = new ArrayList<Boolean>();
 					StringBuilder toBeWritten = new StringBuilder();
-					for (int j = 0; j < trainingData.size(); j++) {
-						Boolean[] record = trainingData.get(j);
+					for (int j = 0; j < testData.size(); j++) {
+						Boolean[] record = testData.get(j);
 						derivedClassValue.add(classify(root, record));
 						toBeWritten.append(derivedClassValue.get(j));
 						toBeWritten
@@ -41,7 +51,124 @@ public class ID3Tree {
 					String filename = "unmodified_data_output_" + percentage[i]
 							+ "_percent";
 					writeToFile(toBeWritten, filename);
-					Double meanSquareError = compareResults(actualClassValue,
+					Double meanSquareError = evaluateResults(actualClassValue,
+							derivedClassValue);
+					System.out.println(meanSquareError);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+
+		private Boolean classify(Node root, Boolean[] record) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		private Node buildTree(ArrayList<Boolean[]> modifiedTestData,
+				HashSet<Integer> attributes) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
+		public ArrayList<Boolean[]> generateTestDataLists(int percentage) {
+
+			ArrayList<Boolean[]> data = new ArrayList<Boolean[]>();
+			int size = randomizedTrainingData.size();
+			int newSize = (int) ((size * percentage) / 100);
+			// System.out.println("for 50% test data full data" +
+			// testData.size()+
+			// newSize);
+
+			for (int i = 0; i < newSize; i++) {
+				Boolean[] record = randomizedTrainingData.get(i);
+				// System.out.println("Building half tree" +
+				// Arrays.toString(record));
+				data.add(record);
+			}
+			return data;
+		}
+		private ArrayList<Boolean[]> readFileandRandomize(String filename)
+				throws Exception {
+
+			ArrayList<Boolean[]> data = new ArrayList<>();
+			Scanner input = new Scanner(new File(filename));
+			double theta = 0.0;
+			while (input.hasNext()) {
+				String line = input.nextLine();
+				theta = Math.random();
+				String[] tokens = line.split("[,]");
+				Boolean[] record = new Boolean[tokens.length];
+				if (theta <= 0.8) {
+					for (int i = 0; i < tokens.length; i++) {
+						if (tokens[i].trim().equals("1")) {
+							record[i] = true;
+						} else {
+							record[i] = false;
+						}
+					}
+				}
+				else {
+
+					for (int i = 0; i < tokens.length; i++) {
+						if (tokens[i].trim().equals("1")) {
+							record[i] = false;
+						} else {
+							record[i] = true;
+						}
+					}
+				}
+				data.add(record);
+			}
+
+			input.close();
+
+			return data;
+
+		}
+	}
+	
+//start of class UnmodifiedTreeUnmodifiedData
+	public class UnmodifiedTreeUnmodifiedData {
+		public ArrayList<Boolean[]> trainingData = new ArrayList<Boolean[]>();
+		public int[] percentage = { 1, 2, 5, 10, 25, 50, 75, 100 };
+
+		public UnmodifiedTreeUnmodifiedData() {
+
+			try {
+				trainingData = readFile("./training.txt");
+				ArrayList<Boolean[]> testData = readFile("./test.txt");
+				ArrayList<Boolean> actualClassValue = new ArrayList<Boolean>();
+				for (int i = 0; i < testData.size(); i++) {
+					Boolean[] record = testData.get(i);
+					actualClassValue.add(record[record.length - 1]);
+				}
+				for (int i = 0; i < percentage.length; i++) {
+					ArrayList<Boolean[]> modifiedTestData = generateTestDataLists(percentage[i]);// 20,50,80
+					System.out
+							.println(percentage[i]
+									+ "% of training dataset used to build decision tree.");
+					HashSet<Integer> attributes = getAttributeList(modifiedTestData);
+					Node root = buildTree(modifiedTestData, attributes);
+					traverseTree(root, 0, "");
+					// trees.add(root);
+					ArrayList<Boolean> derivedClassValue = new ArrayList<Boolean>();
+					StringBuilder toBeWritten = new StringBuilder();
+					for (int j = 0; j < testData.size(); j++) {
+						Boolean[] record = testData.get(j);
+						derivedClassValue.add(classify(root, record));
+						toBeWritten.append(derivedClassValue.get(j));
+						toBeWritten
+								.append(System.getProperty("line.separator"));
+					}
+					String filename = "unmodified_data_output_" + percentage[i]
+							+ "_percent";
+					writeToFile(toBeWritten, filename);
+					Double meanSquareError = evaluateResults(actualClassValue,
 							derivedClassValue);
 					System.out.println(meanSquareError);
 				}
@@ -76,32 +203,22 @@ public class ID3Tree {
 			return data;
 		}
 
-		private ArrayList<Boolean[]> generateTestDataLists(int percentage) {
+		public ArrayList<Boolean[]> generateTestDataLists(int percentage) {
 
 			ArrayList<Boolean[]> data = new ArrayList<Boolean[]>();
-			int size = testData.size();
+			int size = trainingData.size();
 			int newSize = (int) ((size * percentage) / 100);
 			// System.out.println("for 50% test data full data" +
 			// testData.size()+
 			// newSize);
 
 			for (int i = 0; i < newSize; i++) {
-				Boolean[] record = testData.get(i);
+				Boolean[] record = trainingData.get(i);
 				// System.out.println("Building half tree" +
 				// Arrays.toString(record));
 				data.add(record);
 			}
 			return data;
-		}
-
-		private HashSet<Integer> getAttributeList(
-				ArrayList<Boolean[]> modifiedTestData) {
-			HashSet<Integer> attributes;
-			attributes = new HashSet<>();
-			for (int i = 0; i < modifiedTestData.get(0).length - 1; i++) {
-				attributes.add(i);
-			}
-			return attributes;
 		}
 
 		public ArrayList<Boolean[]> getTrueRows(ArrayList<Boolean[]> data,
@@ -200,7 +317,8 @@ public class ID3Tree {
 		}
 
 		public boolean allOneClass(ArrayList<Boolean[]> data) {
-			return (numTrue(data) == data.size() || numFalse(data) == data.size());
+			return (numTrue(data) == data.size() || numFalse(data) == data
+					.size());
 		}
 
 		public boolean majorityClass(ArrayList<Boolean[]> data) {
@@ -245,7 +363,6 @@ public class ID3Tree {
 			return -entropy;
 		}
 
-
 		public boolean classify(Node node, Boolean[] row) {
 			if (node.label != null) {
 				return node.label;
@@ -259,8 +376,19 @@ public class ID3Tree {
 			}
 		}
 	}
+//end of class UnmodifiedTreeUnmodifiedData
 
 
+	
+	public HashSet<Integer> getAttributeList(
+			ArrayList<Boolean[]> resizedData) {
+		HashSet<Integer> attributes;
+		attributes = new HashSet<>();
+		for (int i = 0; i < resizedData.get(0).length - 1; i++) {
+			attributes.add(i);
+		}
+		return attributes;
+	}
 	public static void traverseTree(Node node, int tab, String dir) {
 		if (node.label != null) {
 			for (int i = 0; i < tab; i++) {
@@ -277,13 +405,7 @@ public class ID3Tree {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		ID3Tree id3Tree = new ID3Tree();
-		ID3Tree.UnmodifiedDataUnmodifiedTree uDUT = id3Tree.new UnmodifiedDataUnmodifiedTree();
-		
-	}
-
-	private static Double compareResults(ArrayList<Boolean> actualClassValue,
+	public static Double evaluateResults(ArrayList<Boolean> actualClassValue,
 			ArrayList<Boolean> derivedClassValue) {
 		double countActualTrue = 0.0;
 		double countDerivedTrue = 0.0;
@@ -295,14 +417,14 @@ public class ID3Tree {
 				countDerivedTrue++;
 			}
 		}
-		countActualTrue/=100.00;
-		countDerivedTrue/=100.00;
+		countActualTrue /= 100.00;
+		countDerivedTrue /= 100.00;
 		Double msq = (double) ((countActualTrue - countDerivedTrue) * (countActualTrue - countDerivedTrue));
 		return msq;
 
 	}
 
-	private static void writeToFile(StringBuilder toBeWritten, String filename) {
+	public static void writeToFile(StringBuilder toBeWritten, String filename) {
 		FileOutputStream fop = null;
 		File file;
 		String toWriteInFile = new String(toBeWritten);
