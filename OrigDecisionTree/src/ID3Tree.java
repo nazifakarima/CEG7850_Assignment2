@@ -9,13 +9,14 @@ public class ID3Tree {
 
 	public static void main(String[] args) throws Exception {
 		ID3Tree id3Tree = new ID3Tree();
-		//System.out.println("Showing results for unmodified data.");
+		// System.out.println("Showing results for unmodified data.");
 		ID3Tree.UnmodifiedTreeUnmodifiedData uTUD = id3Tree.new UnmodifiedTreeUnmodifiedData();
 		System.out.println("Showing results for randomized data.");
-		ModifiedTreeRandomizedData mTRD = new ModifiedTreeRandomizedData(id3Tree);
+		ModifiedTreeRandomizedData mTRD = new ModifiedTreeRandomizedData(
+				id3Tree);
 	}
 
-	//start of class UnmodifiedTreeUnmodifiedData
+	// start of class UnmodifiedTreeUnmodifiedData
 	public class UnmodifiedTreeUnmodifiedData {
 		public ArrayList<Boolean[]> trainingData = new ArrayList<Boolean[]>();
 		public int[] percentage = { 1, 2, 5, 10, 25, 50, 75, 100 };
@@ -139,7 +140,7 @@ public class ID3Tree {
 			double gain = entropy(data)
 					- ((trueRows.size() / (double) data.size())
 							* entropy(trueRows) + (falseRows.size() / (double) data
-							.size()) * entropy(falseRows));
+							.size()) * entropy(falseRows));// should (falseRows...) be subtrated?
 
 			if (Double.isNaN(gain))
 				return 0.0;
@@ -151,7 +152,6 @@ public class ID3Tree {
 				HashSet<Integer> attributes) {
 			double maxGain = -Double.MIN_VALUE;
 			int attribute = -1;
-
 			for (Integer i : attributes) {
 				double gain = findGain(data, i);
 				if (gain > maxGain) {
@@ -159,7 +159,6 @@ public class ID3Tree {
 					attribute = i;
 				}
 			}
-
 			return attribute;
 		}
 
@@ -259,12 +258,10 @@ public class ID3Tree {
 			}
 		}
 	}
-//end of class UnmodifiedTreeUnmodifiedData
 
+	// end of class UnmodifiedTreeUnmodifiedData
 
-	
-	public HashSet<Integer> getAttributeList(
-			ArrayList<Boolean[]> resizedData) {
+	public HashSet<Integer> getAttributeList(ArrayList<Boolean[]> resizedData) {
 		HashSet<Integer> attributes;
 		attributes = new HashSet<>();
 		for (int i = 0; i < resizedData.get(0).length - 1; i++) {
@@ -272,6 +269,7 @@ public class ID3Tree {
 		}
 		return attributes;
 	}
+
 	public static void traverseTree(Node node, int tab, String dir) {
 		if (node.label != null) {
 			for (int i = 0; i < tab; i++) {

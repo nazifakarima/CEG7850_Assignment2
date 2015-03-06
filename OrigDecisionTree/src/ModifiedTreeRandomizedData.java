@@ -91,12 +91,61 @@ public class ModifiedTreeRandomizedData {
 	private int selectAttribute(HashSet<Integer> attributes,
 			ArrayList<Split> path) {// find which attribute to split on for it's
 									// child node
-		
-		return 0;
+
+		double maxGain = -Double.MIN_VALUE;
+		int attribute = -1;
+
+		for (Integer i : attributes) {
+			double gain = findGain(i, path);
+			if (gain > maxGain) {
+				maxGain = gain;
+				attribute = i;
+			}
+		}
+		return attribute;
+	}
+
+	private double findGain(Integer i, ArrayList<Split> path) {
+		double pEWithoutClass = getPEWithoutClass(path);
+		double pENotWithoutClass = getPENotWithoutClass(path);
+		double gain = entropy(path)- ((entropy(path)*pEWithoutClass) + (entropy(path)*pENotWithoutClass));
+
+				if (Double.isNaN(gain))
+					return 0.0;
+				else
+					return gain;
+	}
+	public double entropy(ArrayList<Split> path) {
+
+		double Qtrue = PStarEWithClass(path);
+		double Qfalse = PStarENotWithClass(path);
+
+		double entropy = 0;
+
+		if (Qtrue != 0 && !Double.isNaN(Qtrue)) {
+			entropy += Qtrue * (Math.log(Qtrue) / Math.log(2));
+		}
+
+		if (Qfalse != 0 && !Double.isNaN(Qfalse)) {
+			entropy += Qfalse * (Math.log(Qfalse) / Math.log(2));
+		}
+
+		return -entropy;
+	}
+
+	private double getPEWithoutClass(ArrayList<Split> path) {
+		double pEWithoutClass = ((theta * PStarEWithoutClass(path)) - ((1 - theta) * PStarENotWithoutClass(path)))
+				/ (1 - (2 * theta));
+		return pEWithoutClass;
+	}
+
+	private double getPENotWithoutClass(ArrayList<Split> path) {
+		double pENotWithoutClass = ((theta * PStarENotWithoutClass(path)) - ((1 - theta) * PStarEWithoutClass(path)))
+				/ (1 - (2 * theta));
+		return pENotWithoutClass;
 	}
 
 	private Boolean majorityClass(ArrayList<Boolean[]> modifiedTestData2) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -120,10 +169,10 @@ public class ModifiedTreeRandomizedData {
 			}
 			if (countPath == path.size()) {
 				countData++;
-				//PStarEWithoutClass++;
+				// PStarEWithoutClass++;
 			}
 		}
-		PStarEWithoutClass = countData/(double)randomizedTrainingData.size();
+		PStarEWithoutClass = countData / (double) randomizedTrainingData.size();
 		return PStarEWithoutClass;
 
 	}
@@ -148,11 +197,12 @@ public class ModifiedTreeRandomizedData {
 			}
 			if (countPath == path.size()) {
 				countData++;
-				//PStarENotWithoutClass++;
+				// PStarENotWithoutClass++;
 			}
 		}
-		PStarENotWithoutClass = countData/(double) randomizedTrainingData.size();
-		return PStarENotWithoutClass; 
+		PStarENotWithoutClass = countData
+				/ (double) randomizedTrainingData.size();
+		return PStarENotWithoutClass;
 
 	}
 
@@ -164,7 +214,7 @@ public class ModifiedTreeRandomizedData {
 				Boolean[] record = randomizedTrainingData.get(i);
 				if (record[record.length - 1])
 					countData++;
-					//PStarEWithClass++;
+				// PStarEWithClass++;
 			}
 		} else {
 			for (int i = 0; i < randomizedTrainingData.size(); i++) {
@@ -181,12 +231,12 @@ public class ModifiedTreeRandomizedData {
 					}
 					if (countPath == path.size()) {
 						countData++;
-						//PStarEWithClass++;
+						// PStarEWithClass++;
 					}
 				}
 			}
 		}
-		PStarEWithClass = countData/(double)randomizedTrainingData.size();
+		PStarEWithClass = countData / (double) randomizedTrainingData.size();
 		return PStarEWithClass;
 	}
 
@@ -198,7 +248,7 @@ public class ModifiedTreeRandomizedData {
 				Boolean[] record = randomizedTrainingData.get(i);
 				if (!(record[record.length - 1]))
 					countData++;
-					//PStarENotWithClass++;
+				// PStarENotWithClass++;
 			}
 		} else {
 			for (int i = 0; i < randomizedTrainingData.size(); i++) {
@@ -215,15 +265,15 @@ public class ModifiedTreeRandomizedData {
 					}
 					if (countPath == path.size()) {
 						countData++;
-						//PStarENotWithClass++;
+						// PStarENotWithClass++;
 					}
 				}
 			}
 		}
-		PStarENotWithClass = countData/(double)randomizedTrainingData.size();
+		PStarENotWithClass = countData / (double) randomizedTrainingData.size();
 		return PStarENotWithClass;
 	}
-	
+
 	private ArrayList<Boolean[]> generateTestDataLists(int percentage) {
 
 		ArrayList<Boolean[]> data = new ArrayList<Boolean[]>();
