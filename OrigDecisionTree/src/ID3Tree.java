@@ -10,7 +10,7 @@ public class ID3Tree {
 	public static void main(String[] args) throws Exception {
 		ID3Tree id3Tree = new ID3Tree();
 		//System.out.println("Showing results for unmodified data.");
-		//ID3Tree.UnmodifiedTreeUnmodifiedData uTUD = id3Tree.new UnmodifiedTreeUnmodifiedData();
+		ID3Tree.UnmodifiedTreeUnmodifiedData uTUD = id3Tree.new UnmodifiedTreeUnmodifiedData();
 		System.out.println("Showing results for randomized data.");
 		ModifiedTreeRandomizedData mTRD = new ModifiedTreeRandomizedData(id3Tree);
 	}

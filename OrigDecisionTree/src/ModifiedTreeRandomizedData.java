@@ -10,9 +10,10 @@ public class ModifiedTreeRandomizedData {
 	 */
 	double theta = 0.8;
 	private final ID3Tree id3Tree;
+	ArrayList<Boolean[]> modifiedTestData = new ArrayList<Boolean[]>();
 	public ArrayList<Boolean[]> randomizedTrainingData = new ArrayList<Boolean[]>();
-	//public int[] percentage = { 1, 2, 5, 10, 25, 50, 75, 100 };
-	public int[] percentage = {100};
+	// public int[] percentage = { 1, 2, 5, 10, 25, 50, 75, 100 };
+	public int[] percentage = { 100 };
 
 	public ModifiedTreeRandomizedData(ID3Tree id3Tree) {
 		this.id3Tree = id3Tree;
@@ -22,21 +23,22 @@ public class ModifiedTreeRandomizedData {
 					"randomizedTrainingData");
 			ArrayList<Boolean[]> randomizedTestData = readFileandRandomize("./test.txt");
 			putRandomizedDataSetOnFile(randomizedTestData, "randomizedTestData");
-			
-			
-//			ArrayList<Boolean> actualClassValue = new ArrayList<Boolean>();
-//			for (int i = 0; i < randomizedTestData.size(); i++) {
-//				Boolean[] record = randomizedTestData.get(i);
-//				actualClassValue.add(record[record.length - 1]);
-//			}
-			
-			
+
+			// ArrayList<Boolean> actualClassValue = new ArrayList<Boolean>();
+			// for (int i = 0; i < randomizedTestData.size(); i++) {
+			// Boolean[] record = randomizedTestData.get(i);
+			// actualClassValue.add(record[record.length - 1]);
+			// }
+
 			for (int i = 0; i < percentage.length; i++) {
-				ArrayList<Boolean[]> modifiedTestData = generateTestDataLists(percentage[i]);// 20,50,80
-				System.out.println(percentage[i]+ "% of training dataset used to build decision tree.");
+				modifiedTestData = generateTestDataLists(percentage[i]);// 20,50,80
+				System.out.println(percentage[i]
+						+ "% of training dataset used to build decision tree.");
 				HashSet<Integer> attributes = this.id3Tree
 						.getAttributeList(modifiedTestData);
-				Node root = buildTree(modifiedTestData, attributes);
+
+				ArrayList<Split> path = new ArrayList<>();
+				Node root = buildTree(attributes, path);
 				ID3Tree.traverseTree(root, 0, "");
 				// trees.add(root);
 				ArrayList<Boolean> derivedClassValue = new ArrayList<Boolean>();
@@ -50,8 +52,9 @@ public class ModifiedTreeRandomizedData {
 				String filename = "unmodified_data_output_" + percentage[i]
 						+ "_percent";
 				id3Tree.writeToFile(toBeWritten, filename);
-				///Double meanSquareError = ID3Tree.evaluateResults(actualClassValue, derivedClassValue);
-				///System.out.println(meanSquareError);
+				// /Double meanSquareError =
+				// ID3Tree.evaluateResults(actualClassValue, derivedClassValue);
+				// /System.out.println(meanSquareError);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -59,28 +62,157 @@ public class ModifiedTreeRandomizedData {
 		}
 	}
 
-	private void putRandomizedDataSetOnFile(
-			ArrayList<Boolean[]> randomizedData, String fileName) {
-		StringBuilder toBeWritten = new StringBuilder();
-		for (int i = 0; i < randomizedData.size(); i++) {
-			toBeWritten.append(randomizedData.get(i));
-			toBeWritten.append(System.getProperty("line.separator"));
-		}
-		id3Tree.writeToFile(toBeWritten, fileName);
-	}
-
 	private Boolean classify(Node root, Boolean[] record) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	private Node buildTree(ArrayList<Boolean[]> modifiedTestData,
-			HashSet<Integer> attributes) {
+	private Node buildTree(HashSet<Integer> attributes, ArrayList<Split> path) {
+		Node node = new Node();
+		if (attributes.size() == 0) { // no more attributes to split on
+			node.label = majorityClass(modifiedTestData);
+			return node;
+		}
+		node.attribute = selectAttribute(attributes, path);
+		attributes.remove(node.attribute);
 
+		ArrayList<Split> truePath = (ArrayList<Split>) path.clone();
+		truePath.add(new Split(node.attribute, true));
+		node.trueChild = buildTree(attributes, truePath);
+		ArrayList<Split> falsePath = (ArrayList<Split>) path.clone();
+		falsePath.add(new Split(node.attribute, true));
+		node.falseChild = buildTree(attributes, falsePath);
+
+		return node;
+	}
+
+	private int selectAttribute(HashSet<Integer> attributes,
+			ArrayList<Split> path) {// find which attribute to split on for it's
+									// child node
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private Boolean majorityClass(ArrayList<Boolean[]> modifiedTestData2) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public ArrayList<Boolean[]> generateTestDataLists(int percentage) {
+	private int PStarEWithoutClass(ArrayList<Split> path) {
+		if (path.isEmpty()) {
+			return randomizedTrainingData.size();
+		}
+		int PStarEWithoutClass = 0;
+		// int countData = 0;
+		for (int i = 0; i < randomizedTrainingData.size(); i++) {
+			Boolean[] record = randomizedTrainingData.get(i);
+			int countPath = 0;
+			for (int j = 0; j < path.size(); j++) {
+				Split jSplit = path.get(j);
+				int att = jSplit.attribute;
+				boolean dir = jSplit.direction;
+				// boolean recordDir = record[att].equals(1) ? true : false;
+				if (record[att] == dir) {
+					countPath++;
+				}
+			}
+			if (countPath == path.size()) {
+				PStarEWithoutClass++;
+			}
+		}
+		return PStarEWithoutClass;
+
+	}
+
+	private int PStarENotWithoutClass(ArrayList<Split> path) {
+		if (path.isEmpty()) {
+			return 0;
+		}
+		int PStarENotWithoutClass = 0;
+		// int countData = 0;
+		for (int i = 0; i < randomizedTrainingData.size(); i++) {
+			Boolean[] record = randomizedTrainingData.get(i);
+			int countPath = 0;
+			for (int j = 0; j < path.size(); j++) {
+				Split jSplit = path.get(j);
+				int att = jSplit.attribute;
+				boolean dir = jSplit.direction;
+				// boolean recordDir = record[att].equals(1) ? true : false;
+				if (!(record[att] == dir)) {
+					countPath++;
+				}
+			}
+			if (countPath == path.size()) {
+				PStarENotWithoutClass++;
+			}
+		}
+		return PStarENotWithoutClass;
+
+	}
+
+	private int PStarEWithClass(ArrayList<Split> path) {
+		int PStarEWithClass = 0;
+		if (path.isEmpty()) {
+			for (int i = 0; i < randomizedTrainingData.size(); i++) {
+				Boolean[] record = randomizedTrainingData.get(i);
+				if (record[record.length - 1])
+					PStarEWithClass++;
+			}
+		} else {
+			for (int i = 0; i < randomizedTrainingData.size(); i++) {
+				Boolean[] record = randomizedTrainingData.get(i);
+				if (record[record.length - 1]) {
+					int countPath = 0;
+					for (int j = 0; j < path.size(); j++) {
+						Split jSplit = path.get(j);
+						int att = jSplit.attribute;
+						boolean dir = jSplit.direction;
+						if (record[att] == dir) {
+							countPath++;
+						}
+					}
+					if (countPath == path.size()) {
+						PStarEWithClass++;
+					}
+				}
+			}
+		}
+
+		return PStarEWithClass;
+	}
+
+	private int PStarENotWithClass(ArrayList<Split> path) {
+		int PStarENotWithClass = 0;
+		if (path.isEmpty()) {
+			for (int i = 0; i < randomizedTrainingData.size(); i++) {
+				Boolean[] record = randomizedTrainingData.get(i);
+				if (!(record[record.length - 1]))
+					PStarENotWithClass++;
+			}
+		} else {
+			for (int i = 0; i < randomizedTrainingData.size(); i++) {
+				Boolean[] record = randomizedTrainingData.get(i);
+				if (!(record[record.length - 1])) {
+					int countPath = 0;
+					for (int j = 0; j < path.size(); j++) {
+						Split jSplit = path.get(j);
+						int att = jSplit.attribute;
+						boolean dir = jSplit.direction;
+						if (!(record[att] == dir)) {
+							countPath++;
+						}
+					}
+					if (countPath == path.size()) {
+						PStarENotWithClass++;
+					}
+				}
+			}
+		}
+
+		return PStarENotWithClass;
+	}
+	
+	private ArrayList<Boolean[]> generateTestDataLists(int percentage) {
 
 		ArrayList<Boolean[]> data = new ArrayList<Boolean[]>();
 		int size = randomizedTrainingData.size();
@@ -112,6 +244,16 @@ public class ModifiedTreeRandomizedData {
 		}
 		input.close();
 		return data;
+	}
+
+	private void putRandomizedDataSetOnFile(
+			ArrayList<Boolean[]> randomizedData, String fileName) {
+		StringBuilder toBeWritten = new StringBuilder();
+		for (int i = 0; i < randomizedData.size(); i++) {
+			toBeWritten.append(randomizedData.get(i));
+			toBeWritten.append(System.getProperty("line.separator"));
+		}
+		id3Tree.writeToFile(toBeWritten, fileName);
 	}
 
 	private Boolean[] randomizeSingleRecord(String[] tokens) {
