@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
 
+import com.sun.jndi.url.dns.dnsURLContext;
+
 public class ModifiedTreeRandomizedData {
 
 	/**
@@ -80,7 +82,7 @@ public class ModifiedTreeRandomizedData {
 		truePath.add(new Split(node.attribute, true));
 		node.trueChild = buildTree(attributes, truePath);
 		ArrayList<Split> falsePath = (ArrayList<Split>) path.clone();
-		falsePath.add(new Split(node.attribute, true));
+		falsePath.add(new Split(node.attribute, false));
 		node.falseChild = buildTree(attributes, falsePath);
 
 		return node;
@@ -89,7 +91,7 @@ public class ModifiedTreeRandomizedData {
 	private int selectAttribute(HashSet<Integer> attributes,
 			ArrayList<Split> path) {// find which attribute to split on for it's
 									// child node
-		// TODO Auto-generated method stub
+		
 		return 0;
 	}
 
@@ -98,12 +100,12 @@ public class ModifiedTreeRandomizedData {
 		return null;
 	}
 
-	private int PStarEWithoutClass(ArrayList<Split> path) {
+	private double PStarEWithoutClass(ArrayList<Split> path) {
 		if (path.isEmpty()) {
 			return randomizedTrainingData.size();
 		}
-		int PStarEWithoutClass = 0;
-		// int countData = 0;
+		double PStarEWithoutClass = 0;
+		int countData = 0;
 		for (int i = 0; i < randomizedTrainingData.size(); i++) {
 			Boolean[] record = randomizedTrainingData.get(i);
 			int countPath = 0;
@@ -117,19 +119,21 @@ public class ModifiedTreeRandomizedData {
 				}
 			}
 			if (countPath == path.size()) {
-				PStarEWithoutClass++;
+				countData++;
+				//PStarEWithoutClass++;
 			}
 		}
+		PStarEWithoutClass = countData/(double)randomizedTrainingData.size();
 		return PStarEWithoutClass;
 
 	}
 
-	private int PStarENotWithoutClass(ArrayList<Split> path) {
+	private double PStarENotWithoutClass(ArrayList<Split> path) {
 		if (path.isEmpty()) {
 			return 0;
 		}
-		int PStarENotWithoutClass = 0;
-		// int countData = 0;
+		double PStarENotWithoutClass = 0;
+		int countData = 0;
 		for (int i = 0; i < randomizedTrainingData.size(); i++) {
 			Boolean[] record = randomizedTrainingData.get(i);
 			int countPath = 0;
@@ -143,20 +147,24 @@ public class ModifiedTreeRandomizedData {
 				}
 			}
 			if (countPath == path.size()) {
-				PStarENotWithoutClass++;
+				countData++;
+				//PStarENotWithoutClass++;
 			}
 		}
-		return PStarENotWithoutClass;
+		PStarENotWithoutClass = countData/(double) randomizedTrainingData.size();
+		return PStarENotWithoutClass; 
 
 	}
 
-	private int PStarEWithClass(ArrayList<Split> path) {
-		int PStarEWithClass = 0;
+	private double PStarEWithClass(ArrayList<Split> path) {
+		double PStarEWithClass = 0;
+		int countData = 0;
 		if (path.isEmpty()) {
 			for (int i = 0; i < randomizedTrainingData.size(); i++) {
 				Boolean[] record = randomizedTrainingData.get(i);
 				if (record[record.length - 1])
-					PStarEWithClass++;
+					countData++;
+					//PStarEWithClass++;
 			}
 		} else {
 			for (int i = 0; i < randomizedTrainingData.size(); i++) {
@@ -172,22 +180,25 @@ public class ModifiedTreeRandomizedData {
 						}
 					}
 					if (countPath == path.size()) {
-						PStarEWithClass++;
+						countData++;
+						//PStarEWithClass++;
 					}
 				}
 			}
 		}
-
+		PStarEWithClass = countData/(double)randomizedTrainingData.size();
 		return PStarEWithClass;
 	}
 
-	private int PStarENotWithClass(ArrayList<Split> path) {
-		int PStarENotWithClass = 0;
+	private double PStarENotWithClass(ArrayList<Split> path) {
+		double PStarENotWithClass = 0;
+		int countData = 0;
 		if (path.isEmpty()) {
 			for (int i = 0; i < randomizedTrainingData.size(); i++) {
 				Boolean[] record = randomizedTrainingData.get(i);
 				if (!(record[record.length - 1]))
-					PStarENotWithClass++;
+					countData++;
+					//PStarENotWithClass++;
 			}
 		} else {
 			for (int i = 0; i < randomizedTrainingData.size(); i++) {
@@ -203,12 +214,13 @@ public class ModifiedTreeRandomizedData {
 						}
 					}
 					if (countPath == path.size()) {
-						PStarENotWithClass++;
+						countData++;
+						//PStarENotWithClass++;
 					}
 				}
 			}
 		}
-
+		PStarENotWithClass = countData/(double)randomizedTrainingData.size();
 		return PStarENotWithClass;
 	}
 	
