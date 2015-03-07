@@ -64,15 +64,25 @@ public class ModifiedTreeRandomizedData {
 		}
 	}
 
-	private Boolean classify(Node root, Boolean[] record) {
-		// TODO Auto-generated method stub
-		return null;
+	private Boolean classify(Node node, Boolean[] record) {
+
+		if (node.label != null) {
+			return node.label;
+		} else {
+			boolean direction = record[node.attribute];
+			if (direction) {
+				return classify(node.trueChild, record);
+			} else {
+				return classify(node.falseChild, record);
+			}
+		}
+
 	}
 
 	private Node buildTree(HashSet<Integer> attributes, ArrayList<Split> path) {
 		Node node = new Node();
 		if (attributes.size() == 0) { // no more attributes to split on
-			node.label = majorityClass(modifiedTestData);
+			node.label = majorityClass(path);
 			return node;
 		}
 		node.attribute = selectAttribute(attributes, path);
@@ -91,10 +101,8 @@ public class ModifiedTreeRandomizedData {
 	private int selectAttribute(HashSet<Integer> attributes,
 			ArrayList<Split> path) {// find which attribute to split on for it's
 									// child node
-
 		double maxGain = -Double.MIN_VALUE;
 		int attribute = -1;
-
 		for (Integer i : attributes) {
 			double gain = findGain(i, path);
 			if (gain > maxGain) {
@@ -108,13 +116,14 @@ public class ModifiedTreeRandomizedData {
 	private double findGain(Integer i, ArrayList<Split> path) {
 		double pEWithoutClass = getPEWithoutClass(path);
 		double pENotWithoutClass = getPENotWithoutClass(path);
-		double gain = entropy(path)- ((entropy(path)*pEWithoutClass) + (entropy(path)*pENotWithoutClass));
-
-				if (Double.isNaN(gain))
-					return 0.0;
-				else
-					return gain;
+		double gain = entropy(path)
+				- ((entropy(path) * pEWithoutClass) + (entropy(path) * pENotWithoutClass));
+		if (Double.isNaN(gain))
+			return 0.0;
+		else
+			return gain;
 	}
+
 	public double entropy(ArrayList<Split> path) {
 
 		double Qtrue = PStarEWithClass(path);
@@ -145,8 +154,20 @@ public class ModifiedTreeRandomizedData {
 		return pENotWithoutClass;
 	}
 
-	private Boolean majorityClass(ArrayList<Boolean[]> modifiedTestData2) {
-		return null;
+	private double getPEWithClass(ArrayList<Split> path) {
+		double pEWithClass = ((theta * PStarEWithClass(path)) - ((1 - theta) * PStarENotWithClass(path)))
+				/ (1 - (2 * theta));
+		return pEWithClass;
+	}
+
+	private double getPENotWithClass(ArrayList<Split> path) {
+		double pENotWithClass = ((theta * PStarENotWithClass(path)) - ((1 - theta) * PStarEWithClass(path)))
+				/ (1 - (2 * theta));
+		return pENotWithClass;
+	}
+
+	private Boolean majorityClass(ArrayList<Split> path) {
+		return getPEWithClass(path) > getPENotWithClass(path);
 	}
 
 	private double PStarEWithoutClass(ArrayList<Split> path) {
