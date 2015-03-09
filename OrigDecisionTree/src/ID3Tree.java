@@ -9,7 +9,7 @@ public class ID3Tree {
 
 	public static void main(String[] args) throws Exception {
 		ID3Tree id3Tree = new ID3Tree();
-		// System.out.println("Showing results for unmodified data.");
+		System.out.println("Showing results for unmodified data.");
 		ID3Tree.UnmodifiedTreeUnmodifiedData uTUD = id3Tree.new UnmodifiedTreeUnmodifiedData();
 		System.out.println("Showing results for randomized data.");
 		ModifiedTreeRandomizedData mTRD = new ModifiedTreeRandomizedData(
@@ -27,10 +27,8 @@ public class ID3Tree {
 				trainingData = readFile("./training.txt");
 				ArrayList<Boolean[]> testData = readFile("./test.txt");
 				ArrayList<Boolean> actualClassValue = new ArrayList<Boolean>();
-				for (int i = 0; i < testData.size(); i++) {
-					Boolean[] record = testData.get(i);
-					actualClassValue.add(record[record.length - 1]);
-				}
+				populateAndSave(testData, actualClassValue);
+				
 				for (int i = 0; i < percentage.length; i++) {
 					ArrayList<Boolean[]> modifiedTestData = generateTestDataLists(percentage[i]);// 20,50,80
 					System.out
@@ -60,6 +58,21 @@ public class ID3Tree {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+
+		private void populateAndSave(ArrayList<Boolean[]> testData,
+				ArrayList<Boolean> actualClassValue) {
+			for (int i = 0; i < testData.size(); i++) {
+				Boolean[] record = testData.get(i);
+				actualClassValue.add(record[record.length - 1]);
+			}
+			StringBuilder toBeWritten = new StringBuilder();
+			for (int j = 0; j < actualClassValue.size(); j++) {
+				toBeWritten.append(actualClassValue.get(j));
+				toBeWritten.append(System.getProperty("line.separator"));
+			}
+			String filename = "actual_class_value";
+			writeToFile(toBeWritten, filename);
 		}
 
 		public ArrayList<Boolean[]> readFile(String filename) throws Exception {

@@ -26,12 +26,6 @@ public class ModifiedTreeRandomizedData {
 			ArrayList<Boolean[]> randomizedTestData = readFileandRandomize("./test.txt");
 			putRandomizedDataSetOnFile(randomizedTestData, "randomizedTestData");
 
-			// ArrayList<Boolean> actualClassValue = new ArrayList<Boolean>();
-			// for (int i = 0; i < randomizedTestData.size(); i++) {
-			// Boolean[] record = randomizedTestData.get(i);
-			// actualClassValue.add(record[record.length - 1]);
-			// }
-
 			for (int i = 0; i < percentage.length; i++) {
 				modifiedTestData = generateTestDataLists(percentage[i]);// 20,50,80
 				System.out.println(percentage[i]
@@ -42,7 +36,6 @@ public class ModifiedTreeRandomizedData {
 				ArrayList<Split> path = new ArrayList<>();
 				Node root = buildTree(attributes, path);
 				ID3Tree.traverseTree(root, 0, "");
-				// trees.add(root);
 				ArrayList<Boolean> derivedClassValue = new ArrayList<Boolean>();
 				StringBuilder toBeWritten = new StringBuilder();
 				for (int j = 0; j < randomizedTestData.size(); j++) {
