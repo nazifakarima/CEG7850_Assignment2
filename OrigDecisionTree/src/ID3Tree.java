@@ -37,7 +37,6 @@ public class ID3Tree {
 					HashSet<Integer> attributes = getAttributeList(modifiedTestData);
 					Node root = buildTree(modifiedTestData, attributes);
 					traverseTree(root, 0, "");
-					// trees.add(root);
 					ArrayList<Boolean> derivedClassValue = new ArrayList<Boolean>();
 					StringBuilder toBeWritten = new StringBuilder();
 					for (int j = 0; j < testData.size(); j++) {
@@ -73,31 +72,6 @@ public class ID3Tree {
 			}
 			String filename = "actual_class_value";
 			writeToFile(toBeWritten, filename);
-		}
-
-		public ArrayList<Boolean[]> readFile(String filename) throws Exception {
-
-			ArrayList<Boolean[]> data = new ArrayList<>();
-			Scanner input = new Scanner(new File(filename));
-
-			while (input.hasNext()) {
-				String line = input.nextLine();
-				String[] tokens = line.split("[,]");
-
-				Boolean[] record = new Boolean[tokens.length];
-				for (int i = 0; i < tokens.length; i++) {
-					if (tokens[i].trim().equals("1")) {
-						record[i] = true;
-					} else {
-						record[i] = false;
-					}
-				}
-				data.add(record);
-			}
-
-			input.close();
-
-			return data;
 		}
 
 		public ArrayList<Boolean[]> generateTestDataLists(int percentage) {
@@ -273,6 +247,32 @@ public class ID3Tree {
 	}
 
 	// end of class UnmodifiedTreeUnmodifiedData
+	
+
+	public static ArrayList<Boolean[]> readFile(String filename) throws Exception {
+
+		ArrayList<Boolean[]> data = new ArrayList<>();
+		Scanner input = new Scanner(new File(filename));
+
+		while (input.hasNext()) {
+			String line = input.nextLine();
+			String[] tokens = line.split("[,]");
+
+			Boolean[] record = new Boolean[tokens.length];
+			for (int i = 0; i < tokens.length; i++) {
+				if (tokens[i].trim().equals("1")) {
+					record[i] = true;
+				} else {
+					record[i] = false;
+				}
+			}
+			data.add(record);
+		}
+
+		input.close();
+
+		return data;
+	}
 
 	public HashSet<Integer> getAttributeList(ArrayList<Boolean[]> resizedData) {
 		HashSet<Integer> attributes;

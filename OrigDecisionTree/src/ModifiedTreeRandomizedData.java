@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -10,12 +11,12 @@ public class ModifiedTreeRandomizedData {
 	/**
 	 * 
 	 */
-	double theta = 0.8;
+	double theta = 0.65;
 	private final ID3Tree id3Tree;
 	ArrayList<Boolean[]> modifiedTestData = new ArrayList<Boolean[]>();
 	public ArrayList<Boolean[]> randomizedTrainingData = new ArrayList<Boolean[]>();
-	// public int[] percentage = { 1, 2, 5, 10, 25, 50, 75, 100 };
-	public int[] percentage = { 100 };
+	public int[] percentage = { 1, 2, 5, 10, 25, 50, 75, 100 };
+	//public int[] percentage = {100};
 
 	public ModifiedTreeRandomizedData(ID3Tree id3Tree) {
 		this.id3Tree = id3Tree;
@@ -44,17 +45,42 @@ public class ModifiedTreeRandomizedData {
 					toBeWritten.append(derivedClassValue.get(j));
 					toBeWritten.append(System.getProperty("line.separator"));
 				}
-				String filename = "unmodified_data_output_" + percentage[i]
+				String filename = "Modified_data_output_" + percentage[i]
 						+ "_percent";
 				id3Tree.writeToFile(toBeWritten, filename);
-				// /Double meanSquareError =
-				// ID3Tree.evaluateResults(actualClassValue, derivedClassValue);
-				// /System.out.println(meanSquareError);
+				ArrayList<Boolean> actualClassValue = readFile("actual_class_value");
+//				for (int j = 0; j < actualClassValue.size(); j++) {
+//					System.out.println("actual class value " + actualClassValue.get(j));
+//				}
+				Double meanSquareError = ID3Tree.evaluateResults(actualClassValue, derivedClassValue);
+				System.out.println(meanSquareError);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private ArrayList<Boolean> readFile(String filename) throws Exception {
+		ArrayList<Boolean> data = new ArrayList<>();
+		Scanner input = new Scanner(new File(filename));
+
+		while (input.hasNext()) {
+			String line = input.nextLine();
+			String[] tokens = line.split(System.getProperty("line.separator"));
+
+			// Boolean[] record = new Boolean[tokens.length];
+			for (int i = 0; i < tokens.length; i++) {
+				String val = tokens[i];
+				if (val.equalsIgnoreCase("true")) {
+					data.add(true);
+				} else {
+					data.add(false);
+				}
+				//data.addAll(tokens[i].trim());
+			}
+		}
+		return data;
 	}
 
 	private Boolean classify(Node node, Boolean[] record) {
@@ -336,6 +362,7 @@ public class ModifiedTreeRandomizedData {
 		Boolean[] modifiedRecord = new Boolean[tokens.length];
 		double randomTheta;
 		randomTheta = Math.random();
+		//System.out.println(randomTheta);
 		if (randomTheta <= theta) {
 			for (int i = 0; i < tokens.length; i++) {
 				if (tokens[i].trim().equals("1")) {
