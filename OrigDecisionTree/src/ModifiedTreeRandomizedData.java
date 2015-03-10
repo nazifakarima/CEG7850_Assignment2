@@ -11,7 +11,7 @@ public class ModifiedTreeRandomizedData {
 	/**
 	 * 
 	 */
-	double theta = 0.65;
+	double theta = 0.5;
 	private final ID3Tree id3Tree;
 	ArrayList<Boolean[]> modifiedTestData = new ArrayList<Boolean[]>();
 	public ArrayList<Boolean[]> randomizedTrainingData = new ArrayList<Boolean[]>();
@@ -25,6 +25,8 @@ public class ModifiedTreeRandomizedData {
 			putRandomizedDataSetOnFile(randomizedTrainingData,
 					"randomizedTrainingData");
 			ArrayList<Boolean[]> randomizedTestData = readFileandRandomize("./test.txt");
+					//ID3Tree.readFile("randomizedTrainingData");
+					
 			putRandomizedDataSetOnFile(randomizedTestData, "randomizedTestData");
 
 			for (int i = 0; i < percentage.length; i++) {
@@ -191,12 +193,12 @@ public class ModifiedTreeRandomizedData {
 
 	private double PStarEWithoutClass(ArrayList<Split> path) {
 		if (path.isEmpty()) {
-			return randomizedTrainingData.size();
+			return modifiedTestData.size();
 		}
 		double PStarEWithoutClass = 0;
 		int countData = 0;
-		for (int i = 0; i < randomizedTrainingData.size(); i++) {
-			Boolean[] record = randomizedTrainingData.get(i);
+		for (int i = 0; i < modifiedTestData.size(); i++) {
+			Boolean[] record = modifiedTestData.get(i);
 			int countPath = 0;
 			for (int j = 0; j < path.size(); j++) {
 				Split jSplit = path.get(j);
@@ -212,7 +214,7 @@ public class ModifiedTreeRandomizedData {
 				// PStarEWithoutClass++;
 			}
 		}
-		PStarEWithoutClass = countData / (double) randomizedTrainingData.size();
+		PStarEWithoutClass = countData / (double) modifiedTestData.size();
 		return PStarEWithoutClass;
 
 	}
@@ -223,8 +225,8 @@ public class ModifiedTreeRandomizedData {
 		}
 		double PStarENotWithoutClass = 0;
 		int countData = 0;
-		for (int i = 0; i < randomizedTrainingData.size(); i++) {
-			Boolean[] record = randomizedTrainingData.get(i);
+		for (int i = 0; i < modifiedTestData.size(); i++) {
+			Boolean[] record = modifiedTestData.get(i);
 			int countPath = 0;
 			for (int j = 0; j < path.size(); j++) {
 				Split jSplit = path.get(j);
@@ -241,7 +243,7 @@ public class ModifiedTreeRandomizedData {
 			}
 		}
 		PStarENotWithoutClass = countData
-				/ (double) randomizedTrainingData.size();
+				/ (double) modifiedTestData.size();
 		return PStarENotWithoutClass;
 
 	}
@@ -250,15 +252,15 @@ public class ModifiedTreeRandomizedData {
 		double PStarEWithClass = 0;
 		int countData = 0;
 		if (path.isEmpty()) {
-			for (int i = 0; i < randomizedTrainingData.size(); i++) {
-				Boolean[] record = randomizedTrainingData.get(i);
+			for (int i = 0; i < modifiedTestData.size(); i++) {
+				Boolean[] record = modifiedTestData.get(i);
 				if (record[record.length - 1])
 					countData++;
 				// PStarEWithClass++;
 			}
 		} else {
-			for (int i = 0; i < randomizedTrainingData.size(); i++) {
-				Boolean[] record = randomizedTrainingData.get(i);
+			for (int i = 0; i < modifiedTestData.size(); i++) {
+				Boolean[] record = modifiedTestData.get(i);
 				if (record[record.length - 1]) {
 					int countPath = 0;
 					for (int j = 0; j < path.size(); j++) {
@@ -276,7 +278,7 @@ public class ModifiedTreeRandomizedData {
 				}
 			}
 		}
-		PStarEWithClass = countData / (double) randomizedTrainingData.size();
+		PStarEWithClass = countData / (double) modifiedTestData.size();
 		return PStarEWithClass;
 	}
 
@@ -284,15 +286,15 @@ public class ModifiedTreeRandomizedData {
 		double PStarENotWithClass = 0;
 		int countData = 0;
 		if (path.isEmpty()) {
-			for (int i = 0; i < randomizedTrainingData.size(); i++) {
-				Boolean[] record = randomizedTrainingData.get(i);
+			for (int i = 0; i < modifiedTestData.size(); i++) {
+				Boolean[] record = modifiedTestData.get(i);
 				if (!(record[record.length - 1]))
 					countData++;
 				// PStarENotWithClass++;
 			}
 		} else {
-			for (int i = 0; i < randomizedTrainingData.size(); i++) {
-				Boolean[] record = randomizedTrainingData.get(i);
+			for (int i = 0; i < modifiedTestData.size(); i++) {
+				Boolean[] record = modifiedTestData.get(i);
 				if (!(record[record.length - 1])) {
 					int countPath = 0;
 					for (int j = 0; j < path.size(); j++) {
@@ -310,7 +312,7 @@ public class ModifiedTreeRandomizedData {
 				}
 			}
 		}
-		PStarENotWithClass = countData / (double) randomizedTrainingData.size();
+		PStarENotWithClass = countData / (double) modifiedTestData.size();
 		return PStarENotWithClass;
 	}
 
